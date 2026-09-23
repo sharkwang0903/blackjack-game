@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#103d32">
+  <title>Blackjack｜21 點</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div><p class="eyebrow">單人紙牌遊戲</p><h1>Blackjack <span>21 點</span></h1></div>
+      <div class="top-record" aria-label="歷史最佳紀錄">最長存活 <strong id="top-rounds">0</strong> 局 <span class="divider">·</span> 最多 Blackjack <strong id="top-blackjacks">0</strong> 次</div>
+    </header>
+
+    <section id="home-screen" class="screen home-screen">
+      <div class="home-card">
+        <p class="eyebrow">BLACKJACK</p>
+        <h2>準備好上桌了嗎？</h2>
+        <p>從 1,000 籌碼開始挑戰。下注、抽牌，讓點數盡量接近 21，同時贏過莊家。</p>
+        <button id="start-challenge" class="button primary large">開始挑戰</button>
+      </div>
+      <div class="rules-card">
+        <h3>快速規則</h3>
+        <p>超過 21 點就爆牌。莊家低於 17 點必須抽牌，Soft 17 停牌。起手 Blackjack 獲利 3:2；一般勝利獲利 1:1。</p>
+        <p>可選擇 Hit、Stand、Double；起手兩張點數相同且籌碼足夠時可 Split 一次。</p>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen game-screen" hidden>
+      <div class="scorebar">
+        <div class="score"><span>可用籌碼</span><strong id="chips">1,000</strong></div>
+        <div class="score"><span>本局下注</span><strong id="round-bet">0</strong></div>
+        <div class="score"><span>完成局數</span><strong id="rounds">0</strong></div>
+      </div>
+
+      <div class="table">
+        <div class="table-center">BLACKJACK <span>·</span> 21</div>
+        <div class="dealer-area">
+          <div class="area-heading"><h2>莊家</h2><span id="dealer-total" class="total-pill">—</span></div>
+          <div id="dealer-cards" class="cards" aria-label="莊家手牌"></div>
+        </div>
+        <div class="shoe-mark" aria-hidden="true"><span>▣</span><small>牌堆</small></div>
+        <div class="player-area">
+          <div class="area-heading"><h2>你的手牌</h2></div>
+          <div id="player-hands" class="hands"></div>
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+        <div id="bet-controls" class="control-group" hidden>
+          <p class="control-label">選擇下注額 <span>目前：<strong id="pending-bet">0</strong></span></p>
+          <div class="button-row">
+            <button class="button bet-button" data-bet="10">+10</button>
+            <button class="button bet-button" data-bet="25">+25</button>
+            <button class="button bet-button" data-bet="50">+50</button>
+            <button class="button bet-button" data-bet="100">+100</button>
+            <button id="all-in" class="button bet-button">All In</button>
+          </div>
+          <div class="button-row secondary-row">
+            <button id="clear-bet" class="button secondary">清除</button>
+            <button id="start-round" class="button primary">開始遊戲</button>
+          </div>
+        </div>
+        <div id="play-controls" class="control-group" hidden>
+          <p class="control-label">選擇操作</p>
+          <div class="button-row">
+            <button id="hit" class="button primary">Hit <small>補牌</small></button>
+            <button id="stand" class="button">Stand <small>停牌</small></button>
+            <button id="double" class="button">Double <small>加倍</small></button>
+            <button id="split" class="button">Split <small>分牌</small></button>
+          </div>
+        </div>
+        <div id="settlement-controls" class="control-group" hidden>
+          <div class="button-row">
+            <button id="next-round" class="button primary">下一局</button>
+            <button id="leave-table" class="button secondary">離開牌桌</button>
+          </div>
+        </div>
+      </div>
+      <p class="table-note">使用同一副 52 張牌跨局遊玩；牌堆不足時會在下一局前重新洗牌。</p>
+    </section>
+
+    <section id="end-screen" class="screen end-screen" hidden>
+      <div class="summary-card">
+        <p class="eyebrow">挑戰結束</p>
+        <h2 id="end-title">本次成績</h2>
+        <div class="summary-grid">
+          <div><span>完成局數</span><strong id="end-rounds">0</strong></div>
+          <div><span>最終籌碼</span><strong id="end-chips">0</strong></div>
+          <div><span>勝 / 平 / 敗</span><strong id="end-record">0 / 0 / 0</strong></div>
+          <div><span>勝率</span><strong id="end-rate">0.0%</strong></div>
+          <div><span>最大單局下注</span><strong id="end-max-bet">0</strong></div>
+        </div>
+        <div class="button-row end-actions">
+          <button id="home" class="button secondary">回到首頁</button>
+          <button id="retry" class="button primary">再次挑戰</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script defer src="./deck.js"></script>
+  <script defer src="./game.js"></script>
+  <script defer src="./storage.js"></script>
+  <script defer src="./ui.js"></script>
+</body>
+</html>
