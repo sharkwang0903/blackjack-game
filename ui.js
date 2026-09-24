@@ -146,8 +146,29 @@ const game = new BlackjackGame({
   onEnd: stats => { records = updateRecords(stats); }
 });
 
+function animateBetChip(button, source) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const target = $("pending-bet").getBoundingClientRect();
+  const visual = document.createElement("div");
+  visual.className = `${button.className} bet-chip-flying`;
+  visual.innerHTML = button.innerHTML;
+  visual.setAttribute("aria-hidden", "true");
+  visual.style.left = `${source.left}px`;
+  visual.style.top = `${source.top}px`;
+  visual.style.width = `${source.width}px`;
+  visual.style.height = `${source.height}px`;
+  visual.style.setProperty("--chip-flight-x", `${target.left + target.width / 2 - source.left - source.width / 2}px`);
+  visual.style.setProperty("--chip-flight-y", `${target.top + target.height / 2 - source.top - source.height / 2}px`);
+  document.body.append(visual);
+  visual.addEventListener("animationend", () => visual.remove(), { once: true });
+  window.setTimeout(() => visual.remove(), 650);
+}
+
 $("start-challenge").addEventListener("click", () => game.startChallenge());
-for (const button of document.querySelectorAll("[data-bet]")) button.addEventListener("click", () => game.addBet(Number(button.dataset.bet)));
+for (const button of document.querySelectorAll("[data-bet]")) button.addEventListener("click", () => {
+  const source = button.getBoundingClientRect();
+  if (game.addBet(Number(button.dataset.bet))) animateBetChip(button, source);
+});
 $("all-in").addEventListener("click", () => game.allIn());
 $("clear-bet").addEventListener("click", () => game.clearBet());
 $("start-round").addEventListener("click", () => game.startRound());

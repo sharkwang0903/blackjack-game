@@ -58,12 +58,14 @@
         <div id="status" class="status" role="status" aria-live="polite"></div>
         <div id="bet-controls" class="control-group" hidden>
           <p class="control-label"><span>目前：<strong id="pending-bet">0</strong></span></p>
-          <div class="button-row">
-            <button class="button bet-button" data-bet="10">+10</button>
-            <button class="button bet-button" data-bet="25">+25</button>
-            <button class="button bet-button" data-bet="50">+50</button>
-            <button class="button bet-button" data-bet="100">+100</button>
-            <button id="all-in" class="button bet-button">All In</button>
+          <div class="chip-row">
+            <button class="bet-chip chip-10" data-bet="10" aria-label="增加下注 10 籌碼"><span class="chip-value">10</span></button>
+            <button class="bet-chip chip-25" data-bet="25" aria-label="增加下注 25 籌碼"><span class="chip-value">25</span></button>
+            <button class="bet-chip chip-50" data-bet="50" aria-label="增加下注 50 籌碼"><span class="chip-value">50</span></button>
+            <button class="bet-chip chip-100" data-bet="100" aria-label="增加下注 100 籌碼"><span class="chip-value">100</span></button>
+          </div>
+          <div class="button-row all-in-row">
+            <button id="all-in" class="button">All In</button>
           </div>
           <div class="button-row secondary-row">
             <button id="clear-bet" class="button secondary">清除</button>
