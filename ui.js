@@ -6,24 +6,98 @@ const $ = id => document.getElementById(id);
 const format = number => new Intl.NumberFormat("zh-TW").format(number);
 const outcomeText = { blackjack: "Blackjack", win: "獲勝", push: "平手", loss: "失敗" };
 let records = loadRecords();
+let hasRenderedRound = false;
 
-function renderCard(card, hidden = false) {
-  if (hidden) return '<div class="card back" aria-label="暗牌"></div>';
+function setCardFace(element, card, hidden = false) {
   const red = card.suit === "♥" || card.suit === "♦";
-  return `<div class="card${red ? " red" : ""}" aria-label="${card.rank}${card.suit}"><span class="corner">${card.rank}<br><span class="corner-suit">${card.suit}</span></span><span class="center-suit">${card.suit}</span></div>`;
+  element.classList.toggle("back", hidden);
+  element.classList.toggle("red", !hidden && red);
+  element.setAttribute("aria-label", hidden ? "暗牌" : `${card.rank}${card.suit}`);
+  element.innerHTML = hidden ? "" : `<span class="corner">${card.rank}<br><span class="corner-suit">${card.suit}</span></span><span class="center-suit">${card.suit}</span>`;
 }
 
-function renderHands(round, phase) {
-  if (!round) return '<div class="empty-hand">下注後開始發牌</div>';
-  return round.hands.map((hand, index) => {
-    const total = handValue(hand.cards).total;
+function appendCard(container, card, hidden = false, delay = 0) {
+  const element = document.createElement("div");
+  element.className = "card";
+  setCardFace(element, card, hidden);
+  container.append(element);
+  // Measure only the new card; its animation starts at the visible shoe.
+  const shoe = document.querySelector(".shoe-mark .shoe-card:last-of-type")?.getBoundingClientRect();
+  if (shoe) {
+    const target = element.getBoundingClientRect();
+    element.style.setProperty("--deal-x", `${shoe.left + shoe.width / 2 - target.left - target.width / 2}px`);
+    element.style.setProperty("--deal-y", `${shoe.top + shoe.height / 2 - target.top - target.height / 2}px`);
+  }
+  element.style.animationDelay = `${delay}ms`;
+  element.addEventListener("animationend", () => {
+    element.classList.remove("dealing");
+    element.style.animationDelay = "";
+  }, { once: true });
+  element.classList.add("dealing");
+}
+
+function createHand() {
+  const element = document.createElement("div");
+  element.className = "hand";
+  element.innerHTML = '<div class="hand-top"></div><div class="cards"></div>';
+  return element;
+}
+
+function syncCards(round, phase, initialRound) {
+  const hands = $("player-hands");
+  const dealer = $("dealer-cards");
+
+  if (!round) {
+    if (hasRenderedRound) {
+      hands.replaceChildren();
+      dealer.replaceChildren();
+      hasRenderedRound = false;
+    }
+    return;
+  }
+
+  if (!hasRenderedRound) {
+    hands.append(createHand());
+    hasRenderedRound = true;
+  }
+
+  if (round.hands.length === 2 && hands.children.length === 1) {
+    const right = createHand();
+    const leftCards = hands.children[0].querySelector(".cards");
+    // Move the original second card to the right hand without dealing it again.
+    const moved = leftCards.children[1];
+    for (const oldCard of [leftCards.children[0], moved]) {
+      oldCard.classList.remove("dealing");
+      oldCard.style.animationDelay = "";
+    }
+    right.querySelector(".cards").append(moved);
+    hands.append(right);
+  }
+
+  round.hands.forEach((hand, index) => {
+    const element = hands.children[index];
+    const cardRow = element.querySelector(".cards");
     const active = [PHASE.PLAYER, PHASE.SPLIT_LEFT, PHASE.SPLIT_RIGHT].includes(phase) && round.activeHand === index;
     const label = round.hands.length === 1 ? "你的牌" : index === 0 ? "左手" : "右手";
-    return `<div class="hand${active ? " active" : ""}">
-      <div class="hand-top"><span class="hand-label">${label} · ${total} 點</span><span class="bet-pill">下注 ${format(hand.bet)}</span>${active ? '<span class="active-pill">操作中</span>' : ""}${hand.outcome ? `<span class="outcome-pill ${hand.outcome}">${total > 21 ? "Bust" : outcomeText[hand.outcome]}</span>` : ""}</div>
-      <div class="cards">${hand.cards.map(card => renderCard(card)).join("")}</div>
-    </div>`;
-  }).join("");
+    const total = handValue(hand.cards).total;
+    element.classList.toggle("active", active);
+    element.querySelector(".hand-top").innerHTML = `<span class="hand-label">${label} · ${total} 點</span><span class="bet-pill">下注 ${format(hand.bet)}</span>${active ? '<span class="active-pill">操作中</span>' : ""}${hand.outcome ? `<span class="outcome-pill ${hand.outcome}">${total > 21 ? "Bust" : outcomeText[hand.outcome]}</span>` : ""}`;
+    while (cardRow.children.length < hand.cards.length) {
+      const cardIndex = cardRow.children.length;
+      appendCard(cardRow, hand.cards[cardIndex], false, initialRound ? cardIndex * 120 : 0);
+    }
+  });
+
+  const oldDealerCount = dealer.children.length;
+  while (dealer.children.length < round.dealer.length) {
+    const index = dealer.children.length;
+    const delay = initialRound ? 60 + index * 120 : (index - oldDealerCount) * 90;
+    appendCard(dealer, round.dealer[index], index === 1 && !round.dealerRevealed, delay);
+  }
+  const holeCard = dealer.children[1];
+  if (holeCard?.classList.contains("back") && round.dealerRevealed) {
+    setCardFace(holeCard, round.dealer[1]);
+  }
 }
 
 function renderRecords() {
@@ -45,8 +119,7 @@ function render(state, actions) {
   $("play-controls").hidden = ![PHASE.PLAYER, PHASE.SPLIT_LEFT, PHASE.SPLIT_RIGHT].includes(phase);
   $("settlement-controls").hidden = phase !== PHASE.SETTLEMENT;
   $("player-hands").classList.toggle("split", round?.hands.length === 2);
-  $("player-hands").innerHTML = renderHands(round, phase);
-  $("dealer-cards").innerHTML = round ? round.dealer.map((card, index) => renderCard(card, index === 1 && !round.dealerRevealed)).join("") : "";
+  syncCards(round, phase, !hasRenderedRound);
   $("dealer-total").textContent = round ? round.dealerRevealed ? `${handValue(round.dealer).total} 點${handValue(round.dealer).total > 21 ? " · Bust" : ""}` : `${handValue([round.dealer[0]]).total} + ?` : "—";
 
   for (const amount of [10, 25, 50, 100]) document.querySelector(`[data-bet="${amount}"]`).disabled = !actions[`bet${amount}`];

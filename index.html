@@ -41,7 +41,10 @@
           <div class="area-heading"><h2>莊家</h2><span id="dealer-total" class="total-pill">—</span></div>
           <div id="dealer-cards" class="cards" aria-label="莊家手牌"></div>
         </div>
-        <div class="shoe-mark" aria-hidden="true"><span>▣</span><small>牌堆</small></div>
+        <div class="shoe-mark" aria-hidden="true">
+          <span class="shoe-card"></span><span class="shoe-card"></span><span class="shoe-card"></span>
+          <small>牌堆</small>
+        </div>
         <div class="player-area">
           <div class="area-heading"><h2>你的手牌</h2></div>
           <div id="player-hands" class="hands"></div>
@@ -65,12 +68,11 @@
           </div>
         </div>
         <div id="play-controls" class="control-group" hidden>
-          <p class="control-label">選擇操作</p>
           <div class="button-row">
-            <button id="hit" class="button primary">Hit <small>補牌</small></button>
-            <button id="stand" class="button">Stand <small>停牌</small></button>
-            <button id="double" class="button">Double <small>加倍</small></button>
-            <button id="split" class="button">Split <small>分牌</small></button>
+            <button id="hit" class="button primary"><span class="action-label">補牌</span><small>Hit</small></button>
+            <button id="stand" class="button"><span class="action-label">停牌</span><small>Stand</small></button>
+            <button id="double" class="button"><span class="action-label">加倍</span><small>Double</small></button>
+            <button id="split" class="button"><span class="action-label">分牌</span><small>Split</small></button>
           </div>
         </div>
         <div id="settlement-controls" class="control-group" hidden>
