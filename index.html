@@ -10,22 +10,25 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div><p class="eyebrow">單人紙牌遊戲</p><h1>Blackjack <span>21 點</span></h1></div>
+      <div><p class="eyebrow">單人紙牌遊戲</p><h1>Blackjack <span>21 點</span></h1><p class="home-tagline">準備好上桌了嗎？試試自己的手氣吧</p></div>
       <div class="top-record" aria-label="歷史最佳紀錄">最長存活 <strong id="top-rounds">0</strong> 局 <span class="divider">·</span> 最多 Blackjack <strong id="top-blackjacks">0</strong> 次</div>
     </header>
 
     <section id="home-screen" class="screen home-screen">
-      <div class="home-card">
-        <p class="eyebrow">BLACKJACK</p>
-        <h2>準備好上桌了嗎？</h2>
-        <p>從 1,000 籌碼開始挑戰。下注、抽牌，讓點數盡量接近 21，同時贏過莊家。</p>
-        <button id="start-challenge" class="button primary large">開始挑戰</button>
-      </div>
-      <div class="rules-card">
-        <h3>快速規則</h3>
-        <p>超過 21 點就爆牌。莊家低於 17 點必須抽牌，Soft 17 停牌。起手 Blackjack 獲利 3:2；一般勝利獲利 1:1。</p>
-        <p>可選擇 Hit、Stand、Double；起手兩張點數相同且籌碼足夠時可 Split 一次。</p>
-      </div>
+      <details class="rules-card">
+        <summary><span>讓手牌點數總和比莊家更接近 21 點，且不可超過 21 點。</span><span class="rules-help" aria-hidden="true">？</span></summary>
+        <div class="rules-detail">
+          <section><h3>目標</h3><p>讓自己的手牌點數比莊家更接近 21 點，但不可超過 21 點。</p></section>
+          <section><h3>牌面點數</h3><ul><li>2～10：依牌面數字計算。</li><li>J / Q / K：皆為 10 點。</li><li>A：可算 1 點或 11 點，系統會自動採用較有利且不爆牌的點數。</li></ul></section>
+          <section><h3>Blackjack</h3><p>起手兩張牌為 A + 10 / J / Q / K，就是 Blackjack。勝利獲利為 3:2；若雙方都有 Blackjack，則為 Push。Split 後形成的 21 點只算普通 21 點。</p></section>
+          <section><h3>玩家操作</h3><ul><li>補牌 Hit：再取得一張牌。</li><li>停牌 Stand：停止拿牌，等待莊家行動。</li><li>加倍 Double：追加與該手下注相同的籌碼，只再取得一張牌，之後自動停牌。</li><li>分牌 Split：起手兩張牌點數相同且籌碼足夠時，可拆成兩手分別遊玩；每局最多一次。A + A 分牌後，每手只補一張牌。</li></ul></section>
+          <section><h3>爆牌</h3><p>手牌點數超過 21 點即為 Bust，該手立即失敗。</p></section>
+          <section><h3>莊家規則</h3><p>莊家低於 17 點必須補牌；達到 17 點或以上必須停牌，Soft 17 也停牌。</p></section>
+          <section><h3>勝負</h3><ul><li>玩家比莊家更接近 21 點，或莊家爆牌且玩家未爆牌：玩家勝。</li><li>雙方同點：Push，退回下注。</li><li>普通勝利獲利 1:1；Blackjack 勝利獲利 3:2。</li></ul></section>
+          <section><h3>其他</h3><ul><li>不使用 Insurance 或 Surrender。</li><li>同一副 52 張牌跨局遊玩；剩餘少於 13 張時，下一局開始前重新洗牌。</li><li>遊戲不顯示剩餘牌數。</li></ul></section>
+        </div>
+      </details>
+      <button id="start-challenge" class="button primary large">開始遊戲</button>
     </section>
 
     <section id="game-screen" class="screen game-screen" hidden>
@@ -54,7 +57,7 @@
       <div class="control-panel">
         <div id="status" class="status" role="status" aria-live="polite"></div>
         <div id="bet-controls" class="control-group" hidden>
-          <p class="control-label">選擇下注額 <span>目前：<strong id="pending-bet">0</strong></span></p>
+          <p class="control-label"><span>目前：<strong id="pending-bet">0</strong></span></p>
           <div class="button-row">
             <button class="button bet-button" data-bet="10">+10</button>
             <button class="button bet-button" data-bet="25">+25</button>

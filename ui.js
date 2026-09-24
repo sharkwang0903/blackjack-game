@@ -107,6 +107,7 @@ function renderRecords() {
 
 function render(state, actions) {
   const { phase, round, stats } = state;
+  document.querySelector(".app").classList.toggle("is-home", phase === PHASE.HOME);
   $("home-screen").hidden = phase !== PHASE.HOME;
   $("game-screen").hidden = phase === PHASE.HOME || phase === PHASE.END;
   $("end-screen").hidden = phase !== PHASE.END;
