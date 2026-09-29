@@ -16,7 +16,8 @@ const port = Number(process.env.PORT) || 8000;
 
 createServer(async (request, response) => {
   const pathname = new URL(request.url, "http://localhost").pathname;
-  const entry = files.get(pathname);
+  const cardImage = /^\/material\/cards\/(?:A|[2-9]|10|J|Q|K)[SHDC]\.png$/.test(pathname) || pathname === "/material/card_back.png";
+  const entry = files.get(pathname) ?? (cardImage ? [pathname.slice(1), "image/png"] : undefined);
   if (!entry) {
     response.writeHead(404).end("Not found");
     return;

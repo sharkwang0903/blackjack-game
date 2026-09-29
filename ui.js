@@ -5,15 +5,18 @@ const { loadRecords, updateRecords } = globalThis.BlackjackStorage;
 const $ = id => document.getElementById(id);
 const format = number => new Intl.NumberFormat("zh-TW").format(number);
 const outcomeText = { blackjack: "Blackjack", win: "獲勝", push: "平手", loss: "失敗" };
+const suitFiles = { "♠": "S", "♥": "H", "♦": "D", "♣": "C" };
 let records = loadRecords();
 let hasRenderedRound = false;
 
 function setCardFace(element, card, hidden = false) {
-  const red = card.suit === "♥" || card.suit === "♦";
   element.classList.toggle("back", hidden);
-  element.classList.toggle("red", !hidden && red);
+  element.setAttribute("role", "img");
   element.setAttribute("aria-label", hidden ? "暗牌" : `${card.rank}${card.suit}`);
-  element.innerHTML = hidden ? "" : `<span class="corner">${card.rank}<br><span class="corner-suit">${card.suit}</span></span><span class="center-suit">${card.suit}</span>`;
+  const image = document.createElement("img");
+  image.alt = "";
+  image.src = hidden ? "./material/card_back.png" : `./material/cards/${card.rank}${suitFiles[card.suit]}.png`;
+  element.replaceChildren(image);
 }
 
 function appendCard(container, card, hidden = false, delay = 0) {
