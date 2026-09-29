@@ -49,6 +49,8 @@ function createHand() {
 function syncCards(round, phase, initialRound) {
   const hands = $("player-hands");
   const dealer = $("dealer-cards");
+  const playerHeading = document.querySelector(".player-area h2");
+  playerHeading.textContent = "你的手牌";
 
   if (!round) {
     if (hasRenderedRound) {
@@ -81,10 +83,14 @@ function syncCards(round, phase, initialRound) {
     const element = hands.children[index];
     const cardRow = element.querySelector(".cards");
     const active = [PHASE.PLAYER, PHASE.SPLIT_LEFT, PHASE.SPLIT_RIGHT].includes(phase) && round.activeHand === index;
-    const label = round.hands.length === 1 ? "你的牌" : index === 0 ? "左手" : "右手";
     const total = handValue(hand.cards).total;
+    const blackjack = hand.outcome === "blackjack" || (round.hands.length === 1 && round.naturalBlackjack);
+    const result = total > 21 ? "Bust！" : blackjack ? `Blackjack！${hand.outcome === "push" ? " · 平手" : ""}` : hand.outcome ? outcomeText[hand.outcome] : "";
+    const resultClass = total > 21 ? "loss" : blackjack ? "blackjack" : hand.outcome;
+    const totalMarkup = `<span class="hand-total${resultClass ? ` outcome-pill ${resultClass}` : ""}">合計 ${total} 點${result ? ` · ${result}` : ""}</span>`;
+    if (round.hands.length === 1) playerHeading.innerHTML = `你的手牌：${totalMarkup}`;
     element.classList.toggle("active", active);
-    element.querySelector(".hand-top").innerHTML = `<span class="hand-label">${label} · ${total} 點</span><span class="bet-pill">下注 ${format(hand.bet)}</span>${active ? '<span class="active-pill">操作中</span>' : ""}${hand.outcome ? `<span class="outcome-pill ${hand.outcome}">${total > 21 ? "Bust" : outcomeText[hand.outcome]}</span>` : ""}`;
+    element.querySelector(".hand-top").innerHTML = round.hands.length === 2 ? `<span class="hand-label">${index === 0 ? "左手" : "右手"}：</span>${totalMarkup}` : "";
     while (cardRow.children.length < hand.cards.length) {
       const cardIndex = cardRow.children.length;
       appendCard(cardRow, hand.cards[cardIndex], false, initialRound ? cardIndex * 120 : 0);
@@ -118,7 +124,8 @@ function render(state, actions) {
   $("round-bet").textContent = format(round ? round.hands.reduce((sum, hand) => sum + hand.bet, 0) : state.pendingBet);
   $("rounds").textContent = format(stats.rounds);
   $("pending-bet").textContent = format(state.pendingBet);
-  $("status").textContent = state.message;
+  $("status").textContent = phase === PHASE.SETTLEMENT || state.message === "請選擇操作。" ? "" : state.message;
+  document.querySelector(".table").classList.toggle("betting", phase === PHASE.BETTING);
   $("bet-controls").hidden = phase !== PHASE.BETTING;
   $("play-controls").hidden = ![PHASE.PLAYER, PHASE.SPLIT_LEFT, PHASE.SPLIT_RIGHT].includes(phase);
   $("settlement-controls").hidden = phase !== PHASE.SETTLEMENT;
