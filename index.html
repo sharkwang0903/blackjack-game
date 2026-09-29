@@ -10,7 +10,7 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div><p class="eyebrow">單人紙牌遊戲</p><h1>Blackjack <span>21 點</span></h1><p class="home-tagline">準備好上桌了嗎？試試自己的手氣吧</p></div>
+      <div><h1>Blackjack <span>21 點</span></h1><p class="home-tagline">準備好上桌了嗎？試試自己的手氣吧</p></div>
       <div class="top-record" aria-label="歷史最佳紀錄">最長存活 <strong id="top-rounds">0</strong> 局 <span class="divider">·</span> 最多 Blackjack <strong id="top-blackjacks">0</strong> 次</div>
     </header>
 
@@ -54,17 +54,17 @@
       </div>
 
       <div class="control-panel">
-        <div id="status" class="status" role="status" aria-live="polite"></div>
+        <div id="status-row" class="status-row">
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+          <p id="bet-summary" class="control-label" hidden><span>目前：<strong id="pending-bet">0</strong></span></p>
+        </div>
         <div id="bet-controls" class="control-group" hidden>
-          <p class="control-label"><span>目前：<strong id="pending-bet">0</strong></span></p>
           <div class="chip-row">
             <button class="bet-chip chip-10" data-bet="10" aria-label="增加下注 10 籌碼"><span class="chip-value">10</span></button>
             <button class="bet-chip chip-25" data-bet="25" aria-label="增加下注 25 籌碼"><span class="chip-value">25</span></button>
             <button class="bet-chip chip-50" data-bet="50" aria-label="增加下注 50 籌碼"><span class="chip-value">50</span></button>
             <button class="bet-chip chip-100" data-bet="100" aria-label="增加下注 100 籌碼"><span class="chip-value">100</span></button>
-          </div>
-          <div class="button-row all-in-row">
-            <button id="all-in" class="button">All In</button>
+            <button id="all-in" class="bet-chip chip-all-in" title="All In" aria-label="All In"><span class="chip-value">All</span></button>
           </div>
           <div class="button-row secondary-row">
             <button id="clear-bet" class="button secondary">清除</button>

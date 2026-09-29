@@ -463,7 +463,17 @@ button:focus-visible {
 .status:empty {
   display:none
 }
-.table.betting + .control-panel .status {
+.status-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px
+}
+.status-row .status,.status-row .control-label {
+  margin:0
+}
+.table.betting + .control-panel .status-row {
   margin-bottom:6px
 }
 .control-label {
@@ -477,9 +487,6 @@ button:focus-visible {
 }
 .control-label > span {
   margin-left:auto
-}
-#bet-controls .control-label {
-  margin-bottom:5px
 }
 .chip-row {
   display:flex;
@@ -545,6 +552,13 @@ button:focus-visible {
   --chip-center:#ecddd4;
   --chip-ink:#563f3a
 }
+.chip-all-in {
+  --chip-body:#d0ad53;
+  --chip-stripe:#f5e9b2;
+  --chip-rim:#a58639;
+  --chip-center:#f5e9b2;
+  --chip-ink:#493b1f
+}
 @media (hover:hover) {
   .bet-chip:hover:not(:disabled) {
     transform:translateY(-4px);
@@ -579,17 +593,6 @@ button:focus-visible {
 }
 .button-row .button {
   min-width:80px
-}
-.all-in-row {
-  justify-content:center;
-  margin-top:13px
-}
-#bet-controls .all-in-row {
-  margin-top:8px
-}
-.all-in-row .button {
-  width:150px;
-  flex:none
 }
 .secondary-row {
   margin-top:12px;
@@ -696,6 +699,9 @@ to {
   padding:16px 9px 15px;
   border-radius:18px
 }
+.table.betting {
+  min-height:220px
+}
 .table-center {
   font-size:.72rem;
   padding:16px 23px
@@ -768,9 +774,15 @@ to {
 }
 
 @media(max-width:360px) {
-  .chip-row {
-    display:grid;
-    grid-template-columns:repeat(2,64px)
+  .control-panel .chip-row {
+    gap:3px
+  }
+  .chip-row .bet-chip {
+    flex-basis:calc((100% - 12px)/5);
+    width:calc((100% - 12px)/5)
+  }
+  .chip-value {
+    font-size:1rem
   }
   .shoe-mark {
   width:68px;
@@ -811,12 +823,13 @@ to {
 
 @media(max-width:600px) {
   .chip-row {
-    gap:8px
+    gap:6px
   }
   .bet-chip {
-    flex-basis:64px;
-    width:64px;
-    height:64px
+    flex-basis:min(60px,calc((100% - 24px)/5));
+    width:min(60px,calc((100% - 24px)/5));
+    height:auto;
+    aspect-ratio:1
   }
   .bet-chip::before {
     inset:8px

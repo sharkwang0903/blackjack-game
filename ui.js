@@ -120,11 +120,15 @@ function render(state, actions) {
   $("home-screen").hidden = phase !== PHASE.HOME;
   $("game-screen").hidden = phase === PHASE.HOME || phase === PHASE.END;
   $("end-screen").hidden = phase !== PHASE.END;
+  document.querySelector(".player-area").hidden = !round?.hands.some(hand => hand.cards.length);
   $("chips").textContent = format(state.chips);
   $("round-bet").textContent = format(round ? round.hands.reduce((sum, hand) => sum + hand.bet, 0) : state.pendingBet);
   $("rounds").textContent = format(stats.rounds);
   $("pending-bet").textContent = format(state.pendingBet);
-  $("status").textContent = phase === PHASE.SETTLEMENT || state.message === "請選擇操作。" ? "" : state.message;
+  const statusMessage = phase === PHASE.SETTLEMENT || state.message === "請選擇操作。" ? "" : state.message;
+  $("status").textContent = statusMessage;
+  $("status-row").hidden = !statusMessage && phase !== PHASE.BETTING;
+  $("bet-summary").hidden = phase !== PHASE.BETTING;
   document.querySelector(".table").classList.toggle("betting", phase === PHASE.BETTING);
   $("bet-controls").hidden = phase !== PHASE.BETTING;
   $("play-controls").hidden = ![PHASE.PLAYER, PHASE.SPLIT_LEFT, PHASE.SPLIT_RIGHT].includes(phase);
