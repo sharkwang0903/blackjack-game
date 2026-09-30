@@ -54,8 +54,9 @@ class BlackjackGame {
       double: playing && hand.cards.length === 2 && chips >= hand.bet,
       split: phase === PHASE.PLAYER && round.hands.length === 1 &&
         hand.cards.length === 2 && cardValue(hand.cards[0]) === cardValue(hand.cards[1]) && chips >= hand.bet,
-      nextRound: phase === PHASE.SETTLEMENT,
-      leave: phase === PHASE.SETTLEMENT,
+      nextRound: phase === PHASE.SETTLEMENT && chips > 0,
+      leave: phase === PHASE.SETTLEMENT && chips > 0,
+      finishChallenge: phase === PHASE.SETTLEMENT && chips === 0,
       home: phase === PHASE.END,
       retry: phase === PHASE.END
     };
@@ -249,12 +250,8 @@ class BlackjackGame {
     stats.maxRoundBet = Math.max(stats.maxRoundBet, round.hands.reduce((sum, hand) => sum + hand.bet, 0));
     this.state.message = round.naturalBlackjack ? "Blackjack！" :
       round.hands.map((hand, index) => `${round.hands.length === 2 ? `${index === 0 ? "左手" : "右手"}：` : ""}${handValue(hand.cards).total > 21 ? "Bust" : { blackjack: "Blackjack", win: "獲勝", push: "平手", loss: "失敗" }[hand.outcome]}`).join("　");
-    if (this.state.chips === 0) {
-      this.#end("bankrupt");
-    } else {
-      this.state.phase = PHASE.SETTLEMENT;
-      this.#emit();
-    }
+    this.state.phase = PHASE.SETTLEMENT;
+    this.#emit();
   }
 
   nextRound() {
@@ -282,6 +279,12 @@ class BlackjackGame {
   leaveTable() {
     if (!this.getActions().leave) return false;
     this.#end("left");
+    return true;
+  }
+
+  finishChallenge() {
+    if (!this.getActions().finishChallenge) return false;
+    this.#end("bankrupt");
     return true;
   }
 

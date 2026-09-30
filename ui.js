@@ -35,6 +35,7 @@ function appendCard(container, card, hidden = false, delay = 0) {
   element.addEventListener("animationend", () => {
     element.classList.remove("dealing");
     element.style.animationDelay = "";
+    syncFinishChallenge(game.getState());
   }, { once: true });
   element.classList.add("dealing");
 }
@@ -109,6 +110,13 @@ function syncCards(round, phase, initialRound) {
   }
 }
 
+function syncFinishChallenge(state) {
+  const ready = state.phase === PHASE.SETTLEMENT && state.chips === 0 &&
+    !document.querySelector(".card.dealing");
+  $("finish-challenge").hidden = !ready;
+  $("finish-challenge").disabled = !ready;
+}
+
 function renderRecords() {
   $("top-rounds").textContent = format(records.longestRounds);
   $("top-blackjacks").textContent = format(records.mostBlackjacks);
@@ -135,6 +143,9 @@ function render(state, actions) {
   $("settlement-controls").hidden = phase !== PHASE.SETTLEMENT;
   $("player-hands").classList.toggle("split", round?.hands.length === 2);
   syncCards(round, phase, !hasRenderedRound);
+  $("next-round").hidden = phase === PHASE.SETTLEMENT && state.chips === 0;
+  $("leave-table").hidden = phase === PHASE.SETTLEMENT && state.chips === 0;
+  syncFinishChallenge(state);
   $("dealer-total").textContent = round ? round.dealerRevealed ? `${handValue(round.dealer).total} 點${handValue(round.dealer).total > 21 ? " · Bust" : ""}` : `${handValue([round.dealer[0]]).total} + ?` : "—";
 
   for (const amount of [10, 25, 50, 100]) document.querySelector(`[data-bet="${amount}"]`).disabled = !actions[`bet${amount}`];
@@ -192,6 +203,7 @@ $("double").addEventListener("click", () => game.double());
 $("split").addEventListener("click", () => game.split());
 $("next-round").addEventListener("click", () => game.nextRound());
 $("leave-table").addEventListener("click", () => game.leaveTable());
+$("finish-challenge").addEventListener("click", () => game.finishChallenge());
 $("home").addEventListener("click", () => game.goHome());
 $("retry").addEventListener("click", () => game.startChallenge());
 })();

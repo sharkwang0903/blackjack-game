@@ -87,6 +87,10 @@ test("Hit bust loses without any dealer draws", () => {
   assert.equal(game.getState().round.dealer.length, 2);
   assert.equal(game.getState().chips, 900);
   assert.equal(game.getState().message, "Bust");
+  assert.equal(game.getActions().nextRound, true);
+  assert.equal(game.getActions().leave, true);
+  assert.equal(game.getActions().finishChallenge, false);
+  assert.equal(game.finishChallenge(), false);
 });
 
 test("dealer bust pays 1:1 and dealer stands on soft 17", () => {
@@ -233,13 +237,39 @@ test("low shoe waits five seconds before creating a new shuffled deck", () => {
   assert.equal(f.game.getState().phase, PHASE.BETTING);
 });
 
-test("losing an All In stake ends the challenge as bankrupt", () => {
+test("losing an All In stake waits for confirmation and ends without settling twice", () => {
   const { game, begin, flush } = setup(["10", "9", "6", "9"]);
-  begin(1000); game.stand(); flush(450);
+  const ended = [];
+  game.onEnd = stats => ended.push(stats);
+  begin(1000);
+  assert.equal(game.getActions().finishChallenge, false);
+  assert.equal(game.finishChallenge(), false);
+  game.stand();
+  assert.equal(game.getActions().finishChallenge, false);
+  assert.equal(game.finishChallenge(), false);
+  flush(450);
+  const settled = game.getState();
+  assert.equal(settled.phase, PHASE.SETTLEMENT);
+  assert.equal(settled.endReason, null);
+  assert.equal(settled.message, "失敗");
+  assert.equal(settled.round.dealerRevealed, true);
+  assert.equal(settled.round.hands[0].outcome, "loss");
+  assert.equal(ended.length, 0);
+  assert.equal(game.getActions().nextRound, false);
+  assert.equal(game.getActions().leave, false);
+  assert.equal(game.nextRound(), false);
+  assert.equal(game.leaveTable(), false);
+  assert.equal(game.getActions().finishChallenge, true);
+  assert.equal(game.finishChallenge(), true);
   assert.equal(game.getState().phase, PHASE.END);
   assert.equal(game.getState().endReason, "bankrupt");
   assert.equal(game.getState().chips, 0);
   assert.equal(game.getState().stats.rounds, 1);
+  assert.deepEqual(game.getState().stats, settled.stats);
+  assert.deepEqual(game.getState().round, settled.round);
+  assert.deepEqual(ended, [settled.stats]);
+  assert.equal(game.finishChallenge(), false);
+  assert.deepEqual(ended, [settled.stats]);
 });
 
 test("leaving is allowed only after settlement and keeps accurate statistics", () => {
